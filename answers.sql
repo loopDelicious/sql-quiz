@@ -79,7 +79,7 @@ watermelons that cost more than $5.00.
 -----
 
 
-SELECT common_name,price FROM melons WHERE price > 5.00 and melon_type = 'Watermelon';
+SELECT common_name, price FROM melons WHERE melon_type = 'Watermelon' AND price > 5.00;
 
 
 ==========
@@ -138,7 +138,7 @@ Northwest and Southwest regions.
 -----
 
 
-SELECT email FROM salespeople WHERE region ='Northwest' OR region = 'Southwest';
+SELECT email FROM salespeople WHERE region = 'Northwest' OR region = 'Southwest';
 
 
 ==========
@@ -168,7 +168,7 @@ with the letter 'M'.
 -----
 
 
-SELECT email, first_name, last_name FROM salespeople WHERE region in ('Northwest','Southwest') AND last_name LIKE 'M%';
+SELECT email, first_name, last_name FROM salespeople WHERE region IN ('Northwest', 'Southwest') AND last_name LIKE 'M%';
 
 
 ==========
@@ -184,7 +184,7 @@ and the dollar to euro conversion rate is 0.73.
 -----
 
 
-SELECT melon_type, common_name, price, (price * 0.73) as euros FROM melons;
+SELECT melon_type, common_name, price, price*0.73 FROM melons;
 
 
 ==========
@@ -198,7 +198,7 @@ table.
 -----
 
 
-SELECT count(*) FROM customers;
+SELECT COUNT(id) FROM customers;
 
 
 ==========
@@ -211,4 +211,176 @@ Write a query that counts the number of orders (in the orders table) shipped to 
 -----
 
 
-SELECT count(*) FROM orders WHERE shipto_state = 'CA';
+SELECT COUNT(id) FROM orders WHERE shipto_state = 'CA';
+
+
+==========
+16
+
+-----
+
+Write a query that shows the total amount of money spent across all melon
+orders.
+
+-----
+
+
+SELECT SUM(order_total) FROM orders;
+
+
+==========
+17
+
+-----
+
+Write a query that shows the average order cost.
+
+-----
+
+
+SELECT AVG(order_total) FROM orders;
+
+
+==========
+18
+
+-----
+
+Write a query that shows the order total that was lowest in price.
+
+-----
+
+
+SELECT MIN(order_total) FROM orders;
+
+
+==========
+19
+
+-----
+
+Write a query that fetches the id of the customer whose email is
+'pclark74@gmail.com'.
+
+-----
+
+
+SELECT id FROM customers WHERE email = 'pclark74@gmail.com';
+
+
+==========
+20
+
+-----
+
+Write a query that shows the id, status and order_total for all orders 
+made by customer 100.
+
+-----
+
+
+SELECT id, status, order_total FROM orders WHERE customer_id=100;
+
+
+==========
+21
+
+-----
+
+Write a single query that shows the id, status, and order total for all
+orders made by 'pclark74@gmail.com'. Use a subselect to do this.
+
+
+-----
+
+
+SELECT id, status, order_total
+FROM orders
+WHERE customer_id =
+(SELECT id FROM customers WHERE email = 'pclark74@gmail.com');
+
+
+==========
+22
+
+-----
+
+Write a query that shows the id, status, and order total for all orders
+made by 'pclark74@gmail.com'. Use a join to do this.
+
+-----
+
+
+SELECT orders.id, status, order_total
+FROM orders
+JOIN customers ON (customer_id = customers.id)
+WHERE email = 'pclark74@gmail.com';
+
+
+==========
+23
+
+-----
+
+Write a query that shows all columns in the order_items table for order #2725.
+
+-----
+
+
+SELECT * FROM order_items WHERE order_id = 2725;
+
+
+==========
+24
+
+-----
+
+Write a query that shows the common_name, melon_type, quantity,
+unit_price and total_price for all the melons in order #2725.
+
+-----
+
+
+SELECT common_name, melon_type, quantity, unit_price, total_price
+FROM order_items
+JOIN melons ON (melon_id = melons.id)
+WHERE order_id = 2725;
+
+
+==========
+25
+
+-----
+
+Write a query that shows the total amount of revenue that comes from
+internet orders.
+
+-----
+
+
+SELECT SUM(order_total)
+FROM orders
+WHERE salesperson_id IS NULL;
+
+
+==========
+26
+
+-----
+
+Challenge: Produce a list of all salespeople and the total amount of orders
+they've sold, while calculating a 15% commission on all of their orders.
+Include their first name, last name, the total of all their sales, and their
+commission. Only report one row per salesperson. Include salespeople who have
+not made any sales.
+
+You will need 'left join' (http://sqlzoo.net/wiki/LEFT_JOIN) and 'group by'
+(http://sqlzoo.net/wiki/SELECT_.._GROUP_BY) clauses to finish this one.
+
+-----
+
+
+SELECT first_name, last_name, SUM(order_total) AS total, 0.15*SUM(order_total) AS commission
+FROM salespeople
+LEFT JOIN orders ON (orders.salesperson_id = salespeople.id)
+GROUP BY salespeople.id;
